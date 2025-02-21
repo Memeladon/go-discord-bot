@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"go-bot/src/middleware"
 	"go-bot/src/modules/smile"
 	"log"
 	"os"
@@ -12,13 +13,15 @@ import (
 	"github.com/lpernett/godotenv"
 )
 
-func main() {
+func init() {
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 		os.Exit(2)
 	}
+}
 
+func main() {
 	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + os.Getenv("DISCORD_TOKEN"))
 	if err != nil {
@@ -26,12 +29,13 @@ func main() {
 		return
 	}
 
-	handlers := [...]any{
+	handlers := [...]func(s *discordgo.Session, m *discordgo.MessageCreate){
 		smile.Handler,
 	}
 
 	for _, handler := range handlers {
-		dg.AddHandler(handler)
+		modifiedHandler := middleware.CheckCommandMiddleware(middleware.IgnoreSelfMiddleware(handler))
+		dg.AddHandler(modifiedHandler)
 	}
 
 	// In this example, we only care about receiving message events.
