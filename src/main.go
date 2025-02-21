@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"go-bot/src/middleware"
+	"go-bot/src/modules/magicball"
 	"go-bot/src/modules/smile"
 	"log"
 	"os"
@@ -30,6 +31,7 @@ func main() {
 	}
 
 	handlers := [...]func(s *discordgo.Session, m *discordgo.MessageCreate){
+		magicball.Handler,
 		smile.Handler,
 	}
 
