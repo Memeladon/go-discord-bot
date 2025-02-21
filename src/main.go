@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"go-bot/src/modules"
+	"go-bot/src/modules/smile"
 	"log"
 	"os"
 	"os/signal"
@@ -27,7 +27,7 @@ func main() {
 	}
 
 	handlers := [...]any{
-		modules.SmileHandler,
+		smile.Handler,
 	}
 
 	for _, handler := range handlers {
