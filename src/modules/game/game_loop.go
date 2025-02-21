@@ -3,30 +3,11 @@ package game
 import (
 	"fmt"
 	"math/rand"
-	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
 
-func SimHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
-
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
-
-	if strings.HasPrefix(m.Content, "))") {
-
-		// Создаём игроков с нужными параметрами
-		player1 := NewPlayer("@memeladon", 30, 10)
-		player2 := NewPlayer("@lardira", 30, 10)
-
-		// Запускаем симуляцию
-		winner := pvp_simulation(player1, player2)
-		fmt.Printf("Победитель: %s\n", winner)
-	}
-}
-
-func pvp_simulation(player1, player2 *Player) string {
+func pvpSimulation(player1, player2 *Player, s *discordgo.Session, m *discordgo.MessageCreate) {
 	minDamage, maxDamage := 2, 5
 	minHealth, maxHealth, minManaCost, maxManaCost := 6, 7, 1, 2
 	minMana, maxMana := 4, 6
@@ -35,7 +16,8 @@ func pvp_simulation(player1, player2 *Player) string {
 	// Цикл игры, пока кто-то не победит
 	for gameMove != 6 {
 		gameMove++
-		fmt.Printf("\nХод %d:\n", gameMove)
+
+		messagegameMove := fmt.Sprintf("\nХод %d:\n", gameMove)
 
 		// Ход первого игрока
 		action := rand.Intn(3)
@@ -50,8 +32,9 @@ func pvp_simulation(player1, player2 *Player) string {
 
 		// Проверяем состояние второго игрока
 		if !player2.IsAlive() {
-			fmt.Printf("%s победил!\n", player1.Username)
-			return player1.Username
+			messageWin := fmt.Sprintf("%s победил!\n", player1.Username)
+			s.ChannelMessageSend(m.ChannelID, messageWin)
+			return
 		}
 
 		// Ход второго игрока
@@ -67,14 +50,19 @@ func pvp_simulation(player1, player2 *Player) string {
 
 		// Проверяем состояние первого игрока
 		if !player1.IsAlive() {
-			fmt.Printf("%s победил!\n", player2.Username)
-			return player2.Username
+			messageWin := fmt.Sprintf("%s победил!\n", player2.Username)
+			s.ChannelMessageSend(m.ChannelID, messageWin)
+			return
 		}
 
 		// Выводим текущее состояние
-		fmt.Printf("Здоровье %s: %d (Мана: %d)\n",
+		messagePlayer1 := fmt.Sprintf("Здоровье %s: %d (Мана: %d)\n",
 			player1.Username, player1.Health, player1.Mana)
-		fmt.Printf("Здоровье %s: %d (Мана: %d)\n",
+		messagePlayer2 := fmt.Sprintf("Здоровье %s: %d (Мана: %d)\n",
 			player2.Username, player2.Health, player2.Mana)
+		messageTotal := messagegameMove + messagePlayer1 + messagePlayer2
+
+		s.ChannelMessageSend(m.ChannelID, messageTotal)
+
 	}
 }
