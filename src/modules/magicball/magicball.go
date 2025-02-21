@@ -8,7 +8,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var possibleAnswers = []string{
+var possibleAnswers = [...]string{
 	"определённо",
 	"так точно",
 	"без сомнений да",
