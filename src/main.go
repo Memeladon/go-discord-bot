@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"go-bot/src/middleware"
+	"go-bot/src/modules/cinema"
 	"go-bot/src/modules/magicball"
 	"go-bot/src/modules/smile"
 	"log"
@@ -18,7 +19,6 @@ func init() {
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
-		os.Exit(2)
 	}
 }
 
@@ -33,6 +33,7 @@ func main() {
 	handlers := [...]func(s *discordgo.Session, m *discordgo.MessageCreate){
 		magicball.Handler,
 		smile.Handler,
+		cinema.Handler,
 	}
 
 	for _, handler := range handlers {
@@ -40,8 +41,7 @@ func main() {
 		dg.AddHandler(modifiedHandler)
 	}
 
-	// In this example, we only care about receiving message events.
-	dg.Identify.Intents = discordgo.IntentsGuildMessages
+	dg.Identify.Intents = discordgo.IntentsAllWithoutPrivileged
 
 	// Open a websocket connection to Discord and begin listening.
 	err = dg.Open()
