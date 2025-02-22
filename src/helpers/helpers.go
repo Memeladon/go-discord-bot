@@ -2,8 +2,6 @@ package helpers
 
 import (
 	"fmt"
-	"go-bot/src/constants"
-	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -14,8 +12,28 @@ var (
 )
 
 func ParseCommand(m *discordgo.MessageCreate) []string {
-	withoutPrefix := m.Content[len(constants.CommandPrefix):]
-	return strings.Split(withoutPrefix, " ")
+	parser := DefaultParser()
+
+	fmt.Printf("Входная комманда: %s\n", m.Content)
+
+	// Парсим команду
+	parsedCommand, err := parser.Parse(m.Content)
+	if err != nil {
+		fmt.Printf("Ошибка парсинга комманды: %v\n", err)
+	}
+
+	// Валидируем команду с использованием правил
+	err = ValidateCommand(parsedCommand)
+	if err != nil {
+		fmt.Printf("Ошибка валидации: %v\n", err)
+	} else {
+		fmt.Println("Команда валидна")
+		fmt.Printf("Ключевое слово: %s\n", parsedCommand.Keyword)
+		fmt.Printf("Аргументы: %v\n", parsedCommand.Args)
+	}
+	fmt.Println()
+
+	return parsedCommand.Args
 }
 
 func FindRoleInGuildByName(roleName string, guildId string, session *discordgo.Session) (*discordgo.Role, error) {
