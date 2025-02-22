@@ -1,9 +1,8 @@
 package magicball
 
 import (
-	"math/rand"
+	"go-bot/src/helpers"
 	"strings"
-	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -34,10 +33,6 @@ var possibleAnswers = [...]string{
 func Handler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// TODO: хэлпер для парсинга команд
 	if strings.HasPrefix(m.Content, "))question") {
-
-		rng := rand.New(rand.NewSource(time.Now().Unix())) // initialize pseudorandom generator
-		randomIndex := rng.Intn(len(possibleAnswers))
-
-		s.ChannelMessageSend(m.ChannelID, possibleAnswers[randomIndex])
+		s.ChannelMessageSend(m.ChannelID, helpers.GetRandomElement(possibleAnswers[:]))
 	}
 }
