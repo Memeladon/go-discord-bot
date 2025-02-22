@@ -37,7 +37,7 @@ func (p *Parser) Parse(input string) (*Command, error) {
 	}
 
 	keyword := parts[0]
-	args := parts[1:]
+	args := parts[:]
 
 	return &Command{
 		Prefix:   p.prefix,

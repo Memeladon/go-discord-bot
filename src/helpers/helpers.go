@@ -2,6 +2,10 @@ package helpers
 
 import (
 	"fmt"
+	"go-bot/src/constants"
+	"math/rand"
+	"net/url"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -10,6 +14,22 @@ var (
 	// небольшой кэш, чтобы не искать роль каждый раз
 	rolesMap = make(map[string]*discordgo.Role) //RoleName + GuildId -> Role
 )
+
+func GetRandomElement(arr []string) string {
+	rng := rand.New(rand.NewSource(time.Now().Unix()))
+	randomIndex := rng.Intn(len(arr))
+	return arr[randomIndex]
+}
+
+func IsWhitelistedHost(u *url.URL) bool {
+	for _, host := range constants.HostWhitelist {
+		if u.Hostname() == host {
+			return true
+		}
+	}
+
+	return false
+}
 
 func ParseCommand(m *discordgo.MessageCreate) []string {
 	parser := DefaultParser()
