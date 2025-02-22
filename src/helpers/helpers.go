@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	// небольшой кэш, чтобы не искать каждый раз роль
-	rolesMap = make(map[string]map[string]*discordgo.Role) //RoleName -> (GuildId  -> Role)
+	// небольшой кэш, чтобы не искать роль каждый раз
+	rolesMap = make(map[string]*discordgo.Role) //RoleName + GuildId -> Role
 )
 
 func ParseCommand(m *discordgo.MessageCreate) []string {
@@ -19,18 +19,17 @@ func ParseCommand(m *discordgo.MessageCreate) []string {
 }
 
 func FindRoleInGuildByName(roleName string, guildId string, session *discordgo.Session) (*discordgo.Role, error) {
+	hash := roleName + guildId
+
 	guild, _ := session.Guild(guildId)
-	if cachedRoleInGuild, found := rolesMap[roleName]; found {
-		if cachedRole, found := cachedRoleInGuild[guildId]; found {
-			return cachedRole, nil
-		}
+
+	if cachedRole, found := rolesMap[hash]; found {
+		return cachedRole, nil
 	}
 
 	for _, role := range guild.Roles {
 		if role.Name == roleName {
-			rolesMap[roleName] = map[string]*discordgo.Role{
-				guildId: role,
-			}
+			rolesMap[hash] = role
 			return role, nil
 		}
 	}
